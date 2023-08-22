@@ -1,5 +1,14 @@
 # Code
 
+Run the whole project:
+
+```
+bash run.sh
+```
+
+All figures and tables will be placed on ./analysis folder:
+
+![png](results.jpg)
 
 ## 1. data pre-processing
 
@@ -90,7 +99,37 @@ convert RDS to csv
 
 ## 2. basic analysis
 
-### 2.1. Figures
+### 2.1. Table1
+
+
+Table1.ipynb
+
+
+
+#### input
+
+parquet for tidy-style result
+
+```
+/cluster/home/bqhu_jh/projects/healthman/analysis/tableOnePlusData-final.parquet
+```
+
+select 3-periods people, rev month info among diff years
+
+```
+/cluster/home/bqhu_jh/projects/healthman/analysis/tableOnePlusData-final_3p.parquet
+/cluster/home/bqhu_jh/projects/healthman/analysis/feature_groups_en_v2.parquet
+/cluster/home/bqhu_jh/projects/healthman/analysis/man_info.pickle
+```
+
+#### output
+
+```
+/cluster/home/bqhu_jh/projects/healthman/analysis/liuzhong/human/clinical/Table*
+```
+
+
+### 2.2. Figures
 
 ```
 Figure1_basic_stats-R.ipynb
@@ -117,34 +156,5 @@ Figure6_liver.ipynb
 #### output
 
 ```
- ~/projects/healthman/analysis/liuzhong/human/clinical/Figure
-
- ```
-
-
-### 2.2. Table1
-
+/cluster/home/bqhu_jh/projects/healthman/analysis/liuzhong/human/clinical/Figure
 ```
-Table1.ipynb
-```
-
-
-#### input
-
-```
-# parquet for tidy-style result
-/cluster/home/bqhu_jh/projects/healthman/analysis/tableOnePlusData-final.parquet
-
-# select 3-periods people, rev month info among diff years
-/cluster/home/bqhu_jh/projects/healthman/analysis/tableOnePlusData-final_3p.parquet
-
-/cluster/home/bqhu_jh/projects/healthman/analysis/feature_groups_en_v2.parquet
-/cluster/home/bqhu_jh/projects/healthman/analysis/man_info.pickle
-```
-
-#### output
-
-```
-/cluster/home/bqhu_jh/projects/healthman/analysis/liuzhong/human/clinical/Table*
-```
-
