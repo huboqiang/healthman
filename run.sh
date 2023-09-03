@@ -2,7 +2,7 @@ source /cluster/home/bqhu_jh/share/miniconda3/etc/profile.d/conda.sh
 conda activate cuda1.7
 
 # step1
-# Rscript 00.read_rds_files.R
+Rscript 00.read_rds_files.R
 
 # step2
 conda activate bigdata
