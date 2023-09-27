@@ -525,7 +525,7 @@ class Sankey(Figure):
         return {'source': 2*idx_pair+i, 'target': 2*(idx_pair+1)+j, 'value': val}
 
 
-    def plot_sankey(self, df_cnt_sub, l_pairs, domain=None):
+    def plot_sankey(self, df_cnt_sub, l_pairs, domain=None, l_nodes=None):
         """plot sankey from df_cnt_sub
 
         Args:
@@ -549,17 +549,21 @@ class Sankey(Figure):
             | 1309 | HEART.T_change |       1 | 45-60        | female   |      1 |      0 |      0 |   2 |
             | 1361 | HEART.T_change |       1 | 45-60        | female   |      1 |      1 |      0 |   1 |
         """
-        nodes = [{"label": f"{l_pairs[0][0]}_0"}, {"label": f"{l_pairs[0][0]}_1"}]
+
+        if l_nodes is None or len(l_nodes)==0:
+            l_nodes = [0, 1]
+        
+        nodes = [{"label": f"{l_pairs[0][0]}_{x}"} for x in l_nodes]
         edges = []
         for idx_pair,pair in enumerate(l_pairs):
-            nodes.append({"label": f"{pair[1]}_0"})
-            nodes.append({"label": f"{pair[1]}_1"})
+            for x0 in l_nodes:    
+                nodes.append({"label": f"{pair[1]}_{x0}"})
 
             df_cnt_sub_pvt = df_cnt_sub[pair+[0]].pivot_table(index=pair, values=0, aggfunc=np.sum)
-            edges.append(self._get_pair_edge(df_cnt_sub_pvt, idx_pair, 0, 0))
-            edges.append(self._get_pair_edge(df_cnt_sub_pvt, idx_pair, 0, 1))
-            edges.append(self._get_pair_edge(df_cnt_sub_pvt, idx_pair, 1, 0))
-            edges.append(self._get_pair_edge(df_cnt_sub_pvt, idx_pair, 1, 1))
+            for x1 in l_nodes:    
+                for x2 in l_nodes:    
+                    edges.append(self._get_pair_edge(df_cnt_sub_pvt, idx_pair, x1, x2))
+
 
         return self._plotly_sankey(nodes, edges, domain), {"nodes": nodes, "edges": edges}
 

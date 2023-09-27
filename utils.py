@@ -52,7 +52,7 @@ def parse_dict_with_default(val, default_dict=None):
     return val
 
 
-def _parse_period(line):
+def _parse_period(line, na_val=pd.NA):
     month = line["month"]
     year = line["year"]
     if (year == 2023 and month < 7) or(year == 2022 and month >= 11):
@@ -64,7 +64,10 @@ def _parse_period(line):
     if (year == 2021 and month < 7) or(year == 2020 and month >= 11):
         return "Control-2021"
 
-    return pd.NA
+    if isinstance(na_val, str):
+        return f"{na_val}-{year}"
+    
+    return na_val
 
 
 def extend_table1plus_data(infile):
@@ -106,13 +109,13 @@ def extend_table1plus_data(infile):
 
 
 
-def parse_man_info(df):
-    # df["year", "month", "birthday", "gender"]
+def parse_man_info(df_input, na_val=pd.NA):
+    df = df_input.copy()
     df["age"] = df.apply(lambda x: int(x["year"])-int(x["birthday"].split("-")[0]), axis=1)
     df["year-month"] = [ f"{x:04d}-{y:02d}" for x,y in zip(df["year"], df["month"])]
     df["age_groups"] = df["age"].apply(_parse_age_groups)
     if sum(df.columns.isin(["period"])) == 0:
-        df["period"] = df.apply(_parse_period, axis=1)
+        df["period"] = df.apply(lambda x: _parse_period(x, na_val), axis=1)
 
     df["gender"] = df["gender"].apply(
             lambda x: parse_dict_with_default(x, default_dict={1:"male", 2:"female"})
@@ -211,11 +214,11 @@ def _get_consecute_3p(df_table1plus_final):
     df_main_q4q1["date_column"] = df_main_q4q1.apply(
                 lambda x: pd.Timestamp(f"{x['year']:04d}-{x['month']:02d}-{x['day']:02d}"), axis=1
     )
-
+    ### 测试用例：+5Or4aEsNrAnrlX7vIZ9PMytDz1xZdZxW1e4MNVNUAl3vg==
     start_date0 = pd.Timestamp('2020-11-01')
-    end_date0 = pd.Timestamp('2021-06-30')
+    end_date0 = pd.Timestamp('2021-10-31')
     start_date1 = pd.Timestamp('2021-11-01')
-    end_date1 = pd.Timestamp('2022-06-30')
+    end_date1 = pd.Timestamp('2022-10-31')
     start_date2 = pd.Timestamp('2022-11-01')
     end_date2 = pd.Timestamp('2023-06-30')
 
@@ -271,28 +274,7 @@ def get_3periods(df_table1plus_final, l_high_lighted, l_text_columns):
     df_table1plus_3p_rev_month = _get_rev_month_3periods(
                                     df_table1plus_final, l_consecute_man3p_tmp, kwargs
     )
-    l_consecute_man3p = list(set(df_table1plus_3p_rev_month["sample_id"])-set([
-        'Y+M9pyDDUb/O3lAx+N7Q1cytDz5zY9ZxWlO5MNZNUwZ1tw==',
-        'duz34LQLja8FwtfyygH8/MytDzhxZdZxWV25MNZLUwh0vw==',
-        'ht5uJZVXoxYJzr6KdEAmnsytDzlxY9ZxWla5NdROUwpyvA==',
-        'qz++/ZdSuOE7PVjMWJDwCsytDzhxY9ZxVFa4MNRJUg50uA==',
-        'hCqkUaauIIIDhnHFiczO+sytDz5xZtZxW1K5ONVNUg53vw==',
-        'FrVD7wxSL3iF8kHspI9DNcytDTpxZdZxWlS4MNVJUg50uQ==',
-        '7jPoASQAbYjLorgnF8LRgsyvDz5zZNZxWlC5NNVEUwx1ug==',
-        'DHAkEPIRf5/38Pdh6Ki7uMytDzlxYtZxWlG5N9ZFWg5xuQ==',
-        'dlfiLvydqIewAvQ+Io6KnsyqDTZxYNZxW124MdVNUgp3vg==',
-        'C4MlkVn8L/a4cV98SVx0Q8ytDTpxY9ZxVVS5OdZIWwt2vQ==',
-        'HJAqe9Dx8TNQpUFSh62QHsytBj9yYNZxW1O4M9RMVQZ01g==',
-        'O71fadyWKYsKEHm//a4Q88ytDTpxZdZxWlW5NtZKUg53uA==',
-        'LD7yAYFSExov51hFO3VjDMytDz5zYtZxVFy5OdRIUg53ug==',
-        'PN/uDmSQYba7y0Afo4YCysytBj9zZNZxVFy4M9ROVQ91vQ==',
-        'Z6bmlmH53Oi9ao/5yLplfcytDz57YtZxVFO5NdZNUg5+tw==',
-        'OW+dEJRskMCjPNRun5LTccytDz5zZNZxVFa5NdZFUAtwvA==',
-        '/3N8RjrsxFJyjahmMN8v5MytDzxxZ9ZxWlG4MNREUgl3vw==',
-        'MUAtoIFxTwGB/ygmDINslMytDzx7Y9ZxVFG4MdRMUgd/ug==',
-        'iQUFce3p0qJ05NbzsA6yWsuvDztxYNZxVVS5NdRIUg50vg=='
-    ]))
-
+    l_consecute_man3p = list(set(df_table1plus_3p_rev_month["sample_id"]))
     df_table1plus_3p_rev_month = df_table1plus_3p_rev_month[
                     df_table1plus_3p_rev_month["sample_id"].isin(l_consecute_man3p)
     ].sort_values(["gender", "sample_id"])
