@@ -349,7 +349,7 @@ class Scatter(Figure):
             aggfunc=[len, np.mean, np.std, func_q5, func_q95], values=y
         )
         np_val = df_my_pvt["mean"].values
-        np_min, np_max = np_val.min(), np_val.max()
+        np_min, np_max = np.nanmin(np_val), np.nanmax(np_val)
         fig = plt.figure(figsize=self.figsize)
         for idx_i, gender in enumerate(facet_hue_x_order):
             for idx, age_group in enumerate(facet_hue_y_order):

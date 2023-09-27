@@ -83,7 +83,7 @@ convert RDS to csv
 # select 3-periods people, rev month info among diff years
 /cluster/home/bqhu_jh/projects/healthman/analysis/tableOnePlusData-final_3p.parquet
 
-/cluster/home/bqhu_jh/projects/healthman/analysis/feature_groups_en_v2.parquet
+/cluster/home/bqhu_jh/projects/healthman/analysis/feature_groups_en_v3.parquet
 /cluster/home/bqhu_jh/projects/healthman/analysis/man_info.pickle
 ```
 
@@ -94,11 +94,11 @@ convert RDS to csv
 
 ```
 Figure1_basic_stats-R.ipynb
-Figure2_heart.ipynb
-Figure3_T-wave-xgb.ipynb
-Figure4_lung.ipynb
-Figure5_blood.ipynb
-Figure6_liver.ipynb
+Figure2_blood.ipynb
+Figure3_lung.ipynb
+Figure4_liver.ipynb
+Figure5_heart.ipynb
+Figure6_T-wave-xgb.ipynb
 ```
 
 #### input
@@ -110,7 +110,7 @@ Figure6_liver.ipynb
 # select 3-periods people, rev month info among diff years
 /cluster/home/bqhu_jh/projects/healthman/analysis/tableOnePlusData-final_3p.parquet
 
-/cluster/home/bqhu_jh/projects/healthman/analysis/feature_groups_en_v2.parquet
+/cluster/home/bqhu_jh/projects/healthman/analysis/feature_groups_en_v3.parquet
 /cluster/home/bqhu_jh/projects/healthman/analysis/man_info.pickle
 ```
 
