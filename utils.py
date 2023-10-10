@@ -5,6 +5,7 @@ import pickle
 import warnings
 import pandas as pd
 import numpy as np
+from scipy import stats
 
 warnings.filterwarnings("ignore")
 
@@ -155,7 +156,7 @@ def _get_df_3periods(df_table1plus, l_consecute_man3p, main_period, l_col_all, l
 
 # def update_liuzhong_health_check_data(
 #         file_data="/cluster/home/bqhu_jh/projects/healthman/analysis/tableOnePlusData-final.csv",
-#         file_meta="/cluster/home/bqhu_jh/projects/healthman/analysis/feature_groups_en_v2.csv"
+#         file_meta="/cluster/home/bqhu_jh/projects/healthman/analysis/feature_groups_en_v3.csv"
 #     ):
 #     df_table1plus, l_consecute_man2p, l_consecute_man3p = extend_table1plus_data(file_data)
 #     kwargs = {
@@ -185,7 +186,7 @@ def _get_df_3periods(df_table1plus, l_consecute_man3p, main_period, l_col_all, l
 
 #     df_table1plus.to_parquet(f"{output_dir}/tableOnePlusData-final.parquet")
 #     df_table1plus_3p_rev_month.to_parquet(f"{output_dir}/tableOnePlusData-final_3p.parquet")
-#     df_meta_group.to_parquet(f"{output_dir}/feature_groups_en_v2.parquet")
+#     df_meta_group.to_parquet(f"{output_dir}/feature_groups_en_v3.parquet")
 #     return df_table1plus, l_consecute_man2p, l_consecute_man3p, df_table1plus_3p_rev_month,\
 #                 df_meta_group, rename_dict
 
@@ -284,3 +285,48 @@ def get_3periods(df_table1plus_final, l_high_lighted, l_text_columns):
     )
 
     return df_table1plus_3p_rev_month, l_consecute_man2p, l_consecute_man3p
+
+def _get_fc_pvalue_tag(tag, m_beg=1, m_end=6, l_months=None, df_meta_group=None, df_table1plus=None):
+    if df_meta_group is None or df_table1plus is None:
+        df_table1plus, l_consecute_man2p, l_consecute_man3p, df_table1plus_3p_revMM, df_meta_group, rename_dict =\
+                                                          quick_load_liuzhong_health_check_data()
+
+    hue = "period"
+    hue_t = "Test-2023"
+    hue_c1 = "Control-2022"
+    hue_c2 = "Control-2021"
+    month = 1
+    print(df_meta_group.loc[tag]["item_name_en"])
+    if m_beg == -1 or m_end == -1:
+        df_p_plot = df_table1plus[[tag, "month", hue]].dropna()
+        subset_t  = df_p_plot[(df_p_plot[hue] == hue_t) ][tag].dropna()
+        subset_c1 = df_p_plot[(df_p_plot[hue] == hue_c1)][tag].dropna()
+        subset_c2 = df_p_plot[(df_p_plot[hue] == hue_c2)][tag].dropna()
+
+        pval = stats.ttest_ind(subset_t.values, subset_c1.values).pvalue
+        print(f"All, 2023 vs 2022, fold change {subset_t.mean() / subset_c1.mean():.2f}, p={pval:.2e}, n={len(subset_t)}, {len(subset_c1)}")
+        pval = stats.ttest_ind(subset_c1.values, subset_c2.values).pvalue
+        print(f"All, 2022 vs 2021, fold change {subset_c1.mean() / subset_c2.mean():.2f}, p={pval:.2e}, n={len(subset_c1)}, {len(subset_c2)}")
+    
+    if l_months is not None:
+        df_p_plot = df_table1plus[[tag, "month", hue]].dropna()
+        subset_t  = df_p_plot[(df_p_plot[hue] == hue_t)  & (df_p_plot["month"].isin(l_months))][tag].dropna()
+        subset_c1 = df_p_plot[(df_p_plot[hue] == hue_c1) & (df_p_plot["month"].isin(l_months))][tag].dropna()
+        subset_c2 = df_p_plot[(df_p_plot[hue] == hue_c2) & (df_p_plot["month"].isin(l_months))][tag].dropna()
+
+        pval = stats.ttest_ind(subset_t.values, subset_c1.values).pvalue
+        print(f"month {l_months}, 2023 vs 2022, fold change {subset_t.mean() / subset_c1.mean():.2f}, p={pval:.2e}, n={len(subset_t)}, {len(subset_c1)}")
+        pval = stats.ttest_ind(subset_c1.values, subset_c2.values).pvalue
+        print(f"month {l_months}, 2022 vs 2021, fold change {subset_c1.mean() / subset_c2.mean():.2f}, p={pval:.2e}, n={len(subset_c1)}, {len(subset_c2)}")
+        return
+        
+    for month in range(m_beg, m_end):
+        df_p_plot = df_table1plus[[tag, "month", hue]].dropna()
+        subset_t  = df_p_plot[(df_p_plot[hue] == hue_t)  & (df_p_plot["month"] == month)][tag].dropna()
+        subset_c1 = df_p_plot[(df_p_plot[hue] == hue_c1) & (df_p_plot["month"] == month)][tag].dropna()
+        subset_c2 = df_p_plot[(df_p_plot[hue] == hue_c2) & (df_p_plot["month"] == month)][tag].dropna()
+
+        pval = stats.ttest_ind(subset_t.values, subset_c1.values).pvalue
+        print(f"month {month}, 2023 vs 2022, fold change {subset_t.mean() / subset_c1.mean():.2f}, p={pval:.2e}, n={len(subset_t)}, {len(subset_c1)}")
+        pval = stats.ttest_ind(subset_c1.values, subset_c2.values).pvalue
+        print(f"month {month}, 2022 vs 2021, fold change {subset_c1.mean() / subset_c2.mean():.2f}, p={pval:.2e}, n={len(subset_c1)}, {len(subset_c2)}")

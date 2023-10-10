@@ -4,6 +4,8 @@
 import warnings
 from tqdm import tqdm
 from scipy import stats
+from jinja2 import Template
+import yaml
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -38,7 +40,7 @@ scatterplus_facet_hue_x_order_default = ["female", "male"]
 scatterplus_facet_hue_y_default = "age_groups"
 scatterplus_facet_hue_y_order_default = ["<30", "30-45", "45-60", ">60"]
 
-my_pal = ["#0172B6", "#E18727", "#BD3C29", "#21854F", "#7876B1", "#6F99AD", "#00A087", "#EE4C97"]
+# my_pal = ["#0172B6", "#E18727", "#BD3C29", "#21854F", "#7876B1", "#6F99AD", "#00A087", "#EE4C97"]
 my_linestyle = [(0, (3, 1, 1, 1)), (0, (5, 10)), "solid", ]
 dict_month = {
     1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr",
@@ -145,6 +147,20 @@ def arr_ratio_pval(arr1, arr2):
     p_value_log10 = -1*np.log10(p_value)
     return [ratio_t, p_value_log10]
 
+def load_color_config(file_config):
+    """load color yaml config from jhuanglab defination
+
+    Args:
+        file_config (FILE): jhuanglab color yaml
+
+    Returns:
+        dict: color dict
+    """
+    with open(file_config, 'r') as f:
+        template_string = f.read()
+        data = yaml.load(template_string, Loader=yaml.FullLoader)
+        return data["colors"]
+
 class Figure(object):
     """plot with Figure objs
 
@@ -153,11 +169,15 @@ class Figure(object):
         Stack
         Sankey
     """
-    def __init__(self, figsize=(6,6), rename_dict=None, n_cols=4, n_rows=4):
+    def __init__(self, figsize=(6,6), rename_dict=None, n_cols=4, n_rows=4,
+                                        project="healthman", dataset="liuzhong"):
         self.figsize = figsize
         self.rename_dict = rename_dict
         self.n_rows = n_rows
         self.n_cols = n_cols
+        file_config = f"/cluster/home/bqhu_jh/projects/{project}/code/configs.yaml"
+        my_color_dict = load_color_config(file_config)
+        self.color_dict = my_color_dict
 
 
 class Scatter(Figure):
@@ -203,7 +223,7 @@ class Scatter(Figure):
             index=hue, columns=x, values=y,
             aggfunc=[len, np.mean, np.std, func_q5, func_q95]
         )
-
+        my_pal = self.color_dict[hue]
         df_mean_sub = df_my_pvt["mean"][order]
         df_n_sub = df_my_pvt["len"][order]
         df_q5_sub = df_my_pvt["func_q5"][order]
@@ -215,17 +235,17 @@ class Scatter(Figure):
             axes.plot(np.arange(n_points)+pos_move[idx],
                         df_mean_sub.loc[label],
                         linestyle=my_linestyle[idx],
-                        color=my_pal[idx], label=label
+                        color=my_pal[label], label=label
             )
             scatter_obj = axes.scatter(np.arange(n_points)+pos_move[idx],
                         df_mean_sub.loc[label],
-                        s=df_n_sub.loc[label]/100, color=my_pal[idx]
+                        s=df_n_sub.loc[label]/100, color=my_pal[label]
             )
             if show_error_bar:
                 axes.errorbar(np.arange(n_points)+pos_move[idx],
                         df_mean_sub.loc[label],
                         yerr=[df_q5_sub.loc[label], df_q95_sub.loc[label]],
-                        color=my_pal[idx]
+                        color=my_pal[label]
                 )
 
         axes.axvspan(0.5, 2.5, alpha=0.1, color='blue')
@@ -418,10 +438,10 @@ class Stack(Figure):
     def _plot_stacked_barplot(self, df_grouped, x_value, hue, y_value, y_order,
                             axes, order, hue_order, my_cmap=None):
         if my_cmap is None:
-            my_cmap = my_pal
+            my_cmap = self.color_dict[y_value]
 
         l_labels = y_order + ["Normal"]
-        l_colors = my_cmap
+        dict_colors = my_cmap
         my_width = 1 / (len(hue_order)+1)
         x_pos_all = get_x_pos_with_n_hues(len(order), len(hue_order)).reshape(len(order), -1)
         for idx, hue_name in enumerate(hue_order):
@@ -433,8 +453,12 @@ class Stack(Figure):
                     df_grouped_sub[df_grouped_sub[x_value] == x_rank][label].values[0]
                         for x_rank in order
                 ])
+                key = idx_label
+                if type(dict_colors) is dict:
+                    key = label
+                
                 kwargs = {"width": my_width,
-                        "color": l_colors[idx_label], "bottom": y_total}
+                        "color": dict_colors[key], "bottom": y_total}
                 if idx == 0:
                     kwargs["label"] = label
 
@@ -467,9 +491,6 @@ class Stack(Figure):
         Returns:
             _type_: _description_
         """
-        if cmap is None:
-            cmap = my_pal
-
         if order is None:
             order = sorted(set(df[x]))
         if hue_order is None:
@@ -520,9 +541,9 @@ class Sankey(Figure):
 
         return val
 
-    def _get_pair_edge(self, df_cnt_sub_pvt, idx_pair, i, j):
+    def _get_pair_edge(self, df_cnt_sub_pvt, idx_pair, i, j, l_nodes):
         val = self._get_pair_value(df_cnt_sub_pvt, i, j)
-        return {'source': 2*idx_pair+i, 'target': 2*(idx_pair+1)+j, 'value': val}
+        return {'source': len(l_nodes)*idx_pair+i, 'target': len(l_nodes)*(idx_pair+1)+j, 'value': val}
 
 
     def plot_sankey(self, df_cnt_sub, l_pairs, domain=None, l_nodes=None):
@@ -562,13 +583,13 @@ class Sankey(Figure):
             df_cnt_sub_pvt = df_cnt_sub[pair+[0]].pivot_table(index=pair, values=0, aggfunc=np.sum)
             for x1 in l_nodes:    
                 for x2 in l_nodes:    
-                    edges.append(self._get_pair_edge(df_cnt_sub_pvt, idx_pair, x1, x2))
+                    edges.append(self._get_pair_edge(df_cnt_sub_pvt, idx_pair, x1, x2, l_nodes))
 
 
         return self._plotly_sankey(nodes, edges, domain), {"nodes": nodes, "edges": edges}
 
 
-    def plot_sankey_subplots(self, df_cnt, month, tag, l_age_groups, l_pairs, prefix="Figure2"):
+    def plot_sankey_subplots(self, df_cnt, month, tag, l_age_groups, l_pairs, by_gender=True, prefix="Figure2"):
         """plot multiple sankey plots
 
         Args:
@@ -586,35 +607,51 @@ class Sankey(Figure):
         layout =  go.Layout(
             title = f"{tag}, month:{month}",
             font = dict(
-            size = 10
+                size = 10
             )
         )
         sankey_dicts = {}
         df_cnt_sub = df_cnt[(df_cnt["variable"]==tag) & (df_cnt["month"].isin(month))]
         l_pos = get_subplots_with_flank_ratio(len(l_age_groups), flank_ratio=0.3)
         for idx,age_groups in enumerate(l_age_groups):
-            df_cnt_sub_female = df_cnt_sub[(df_cnt_sub["gender"]=="female") &
-                                           (df_cnt_sub["age_groups"]==age_groups)]
+            if by_gender:
+                df_cnt_sub_female = df_cnt_sub[(df_cnt_sub["gender"]=="female") &
+                                            (df_cnt_sub["age_groups"]==age_groups)]
+                domain = {
+                        'x': [0, 0.45],
+                        'y': l_pos[idx]
+                }
+                sankey_obj, sankey_dict_female = self.plot_sankey(df_cnt_sub_female, l_pairs, domain)
+                data.append(sankey_obj)
+                df_cnt_sub_male = df_cnt_sub[(df_cnt_sub["gender"]=="male") &
+                                        (df_cnt_sub["age_groups"]==age_groups)]
+                domain = {
+                        'x': [0.55, 1.0],
+                        'y': l_pos[idx]
+                }
+                sankey_obj, sankey_dict_male = self.plot_sankey(df_cnt_sub_male, l_pairs, domain)
+                data.append(sankey_obj)
+                sankey_dicts[age_groups] = {"female": sankey_dict_female, "male": sankey_dict_male}
+                continue
+
+            df_cnt_sub_ = df_cnt_sub[(df_cnt_sub["age_groups"]==age_groups)]
             domain = {
-                    'x': [0, 0.45],
+                    'x': [0.05, 0.95],
                     'y': l_pos[idx]
             }
-            sankey_obj, sankey_dict_female = self.plot_sankey(df_cnt_sub_female, l_pairs, domain)
+            sankey_obj, sankey_dict_ = self.plot_sankey(df_cnt_sub_, l_pairs, domain)
             data.append(sankey_obj)
-            df_cnt_sub_male = df_cnt_sub[(df_cnt_sub["gender"]=="male") &
-                                    (df_cnt_sub["age_groups"]==age_groups)]
-            domain = {
-                    'x': [0.55, 1.0],
-                    'y': l_pos[idx]
-            }
-            sankey_obj, sankey_dict_male = self.plot_sankey(df_cnt_sub_male, l_pairs, domain)
-            data.append(sankey_obj)
-            sankey_dicts[age_groups] = {"female": sankey_dict_female, "male": sankey_dict_male}
+            sankey_dicts[age_groups] = {"all": sankey_dict_}
 
         fig = go.Figure(data=data, layout=layout)
+        width = 500
+        height = 600
+        if not by_gender:
+            width = width * 0.6
+        
         fig.update_layout(
             autosize=False,
-            width=500, height=600,
+            width=width, height=height,
             margin=dict(
                 pad=1
             ),
@@ -766,6 +803,8 @@ class BxxPvalue(Figure):
         ax1.legend(*scatter_obj2.legend_elements(**kwargs), title="n-people",
                         loc='lower left', bbox_to_anchor=(1, 0.5))
 
+        my_cmap = self.color_dict["year"]
+        my_pal = [ my_cmap[k] for k in sorted(my_cmap) ]
         # if sns_type == "boxplot" or sns_type == "box":
         if sns_type in {"boxplot", "box"}:
             sns.boxplot(df_month_var, x=x, y=y, palette=my_pal[0:4],
@@ -776,6 +815,8 @@ class BxxPvalue(Figure):
             sns.barplot(df_month_var, x=x, y=y, palette=my_pal[0:4],
                         hue=hue, hue_order=hue_order, order=order,
                         ax=ax2)
+
+        plt.setp(ax2.patches, linewidth=0.2)
         ax2.legend_.remove()
         ax2.set_ylabel("")
         return df_fc_pval
