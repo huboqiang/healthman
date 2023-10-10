@@ -1,0 +1,52 @@
+default:
+  project_name: healthman
+  dataset: liuzhong
+colors:
+  gender:
+    male: '#0172B6'
+    female: '#BD3C29'
+  year:
+    2020: '#0172B6'
+    2021: '#E18727'
+    2022: '#BD3C29'
+    2023: '#7957db'
+  period:
+    Control-2021: '#0172B6'
+    Control-2022: '#E18727'
+    Test-2023: '#BD3C29'
+  combined_item_name:
+    Cardiovascular: '#BD3C29'
+    BioChem-Liver: '#E18727'
+    ECG: '#BD3C29'
+    CT: '#21854F'
+    Lipids: '#7876B1'
+    Glycemic: '#6F99AD'
+    CBC: '#00A087'
+    Thyroid: '#EE4C97'
+    Bscan-Ultrasound: '#0172B6'
+    BioChem-Metabolism: '#fdb462'
+  month:
+    1: '#0172B6'
+    2: '#E18727'
+    3: '#BD3C29'
+    4: '#21854F'
+    5: '#7876B1'
+    6: '#6F99AD'
+    7: '#00A087'
+    8: '#EE4C97'
+    9: '#b3de69'
+    10: '#fdb462'
+    11: '#80b1d3'
+    12: '#fb8072'
+  heart_state:
+    HEART.SinusTachycardia: '#BD3C29'
+    HEART.SinusBradycardia: '#0172B6'
+    HEART.SinusArrhythmia: '#E18727'
+    HEART.T_change: '#FF0000'
+    HEART.ST_change: '#7876B1'
+    HEART.SinusRhythm: '#6F99AD'
+    Normal: '#00A087'
+  lung_state:
+    LUNG.GroundGlassOpacity: '#BD3C29'
+    Normal: '#0172B6'
+

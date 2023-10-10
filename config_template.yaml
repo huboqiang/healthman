@@ -1,0 +1,63 @@
+colors:
+  NEJM_set: ["#0172B6", "#E18727", "#BD3C29", "#21854F", "#7876B1", "#6F99AD", "#00A087", "#EE4C97", "#b3de69", "#fdb462",
+              "#80b1d3", "#fb8072"]
+  HLS_set: ['#db5f57', '#dbae57', '#b9db57', '#69db57', '#57db94', '#57d3db', '#5784db', '#7957db', '#c957db', '#db579e']
+  XYL85_set: ["#FFA54F", "#20B2AA", "#CDC0B0", "#9ACD32", "#7FFFD4", "#8B7500", "#F0FFFF", "#FFE4C4", "#0000FF", "#FF4040", 
+              "#FFD39B", "#98F5FF", "#7FFF00", "#458B00", "#FF7F24", "#8B4513", "#EE6A50", "#6495ED", "#CDC8B1", "#00FFFF",
+              "#008B8B", "#B8860B", "#FFB90F", "#A9A9A9", "#006400", "#BDB76B", "#8B008B", "#CAFF70", "#A2CD5A", "#6E8B3D",
+              "#FF8C00", "#CD6600", "#8B4500", "#BF3EFF", "#68228B", "#8B0000", "#E9967A", "#8FBC8F", "#C1FFC1", "#483D8B",
+              "#FF1493", "#8B0A50", "#00BFFF", "#00688B", "#696969", "#1874CD", "#CDAD00", "#FFC125", "#FF69B4", "#CD6090",
+              "#8B3A62", "#CD5C5C", "#FF6A6A", "#CD5555", "#8B3A3A", "#CDCDC1", "#F0E68C", "#E6E6FA", "#FFF0F5", "#CDC1C5",
+              "#FFFACD", "#CDC9A5", "#8B8970", "#ADD8E6", "#B2DFEE", "#9AC0CD", "#68838B", "#E0FFFF", "#B4CDCD", "#FAFAD2",
+              "#90EE90", "#FFB6C1", "#EEA2AD", "#FFA07A", "#FAEBD7", "#EE3A8C", "#458B74", "#8B8B00", "#7FFFD4", "#76EEC6",
+              "#FFF68F", "#EEE685", "#CDC673", "#EEEEE0", "#FFF0F5"]
+project:
+  healthman:
+    liuzhong:
+      gender:
+        male:   "{{ colors.NEJM_set[0] }}" # "#0172B6"
+        female: "{{ colors.NEJM_set[2] }}" # "#BD3C29"
+      year:
+        2020: "{{ colors.NEJM_set[0] }}"   # "#0172B6"
+        2021: "{{ colors.NEJM_set[1] }}"   # "#E18727"
+        2022: "{{ colors.NEJM_set[2] }}"   # "#BD3C29"
+        2023: "{{ colors.HLS_set[7] }}"    # "#7957db"
+      period:
+        "Control-2021": "{{ colors.NEJM_set[0] }}" # "#0172B6"
+        "Control-2022": "{{ colors.NEJM_set[1] }}" # "#E18727"
+        "Test-2023":    "{{ colors.NEJM_set[2] }}" # "#BD3C29"
+      combined_item_name:
+        "Cardiovascular":     "{{ colors.NEJM_set[2] }}" # "#DB5F57"
+        "BioChem-Liver":      "{{ colors.NEJM_set[1] }}" # "#DBAE57"
+        "ECG":                "{{ colors.NEJM_set[2] }}" # "#DB5F57"
+        "CT":                 "{{ colors.NEJM_set[3] }}" # "#69DB57"
+        "Lipids":             "{{ colors.NEJM_set[4] }}" # "#57DB94"
+        "Glycemic":           "{{ colors.NEJM_set[5] }}" # "#57d3DB"
+        "CBC":                "{{ colors.NEJM_set[6] }}" # "#5784DB"
+        "Thyroid":            "{{ colors.NEJM_set[7] }}" # "#7957DB"
+        "Bscan-Ultrasound":   "{{ colors.NEJM_set[0] }}" # "#C957DB"
+        "BioChem-Metabolism": "{{ colors.NEJM_set[9] }}" # "#DB579e"
+      month:
+        1: "{{ colors.NEJM_set[0]   }}" # "#0172B6"
+        2: "{{ colors.NEJM_set[1]   }}" # "#E18727"
+        3: "{{ colors.NEJM_set[2]   }}" # "#BD3C29"
+        4: "{{ colors.NEJM_set[3]   }}" # "#21854F"
+        5: "{{ colors.NEJM_set[4]   }}" # "#7876B1"
+        6: "{{ colors.NEJM_set[5]   }}" # "#6F99AD"
+        7: "{{ colors.NEJM_set[6]   }}" # "#00A087"
+        8: "{{ colors.NEJM_set[7]   }}" # "#EE4C97"
+        9: "{{ colors.NEJM_set[8]   }}" # "#b3de69"
+        10: "{{ colors.NEJM_set[9]   }}" # "#fdb462"
+        11: "{{ colors.NEJM_set[10] }}" # "#80b1d3"
+        12: "{{ colors.NEJM_set[11] }}" # "#fb8072"
+      heart_state:
+        "HEART.SinusTachycardia":  "{{ colors.NEJM_set[2]   }}" # "#BD3C29"
+        "HEART.SinusBradycardia":  "{{ colors.NEJM_set[0]   }}" # "#0172B6"
+        "HEART.SinusArrhythmia":   "{{ colors.NEJM_set[1]   }}" # "#E18727"
+        "HEART.T_change":          "#FF0000"
+        "HEART.ST_change":         "{{ colors.NEJM_set[4]   }}" # "#7876B1"
+        "HEART.SinusRhythm":       "{{ colors.NEJM_set[5]   }}" # "#6F99AD"
+        "Normal":                  "{{ colors.NEJM_set[6]   }}" # "#00A087"
+      lung_state:
+        "LUNG.GroundGlassOpacity" : "{{ colors.NEJM_set[2]   }}" # "#BD3C29"
+        "Normal":                   "{{ colors.NEJM_set[0]   }}" # "#00A087"
