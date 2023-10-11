@@ -11,7 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.graph_objects as go
-
+import matplotlib.colors as mcolors
 from matplotlib import font_manager
 from utils import parse_dict_with_default
 
@@ -41,13 +41,14 @@ scatterplus_facet_hue_y_default = "age_groups"
 scatterplus_facet_hue_y_order_default = ["<30", "30-45", "45-60", ">60"]
 
 # my_pal = ["#0172B6", "#E18727", "#BD3C29", "#21854F", "#7876B1", "#6F99AD", "#00A087", "#EE4C97"]
-my_linestyle = [(0, (3, 1, 1, 1)), (0, (5, 10)), "solid", ]
+# my_linestyle = [(0, (3, 1, 1, 1)), (0, (5, 10)), "solid", ]
+my_linestyle = ["solid", "solid", "solid", ]
 dict_month = {
     1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr",
     5: "May", 6: "Jun", 7: "July", 8: "Aug",
     9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec",
 }
-
+cmap_NEJM_by = mcolors.LinearSegmentedColormap.from_list("my_cmap", ['#0172B6', '#80b1d3', '#fdb462'])
 
 def func_q5(value):
     """
@@ -325,7 +326,7 @@ class Scatter(Figure):
                              hue=scatter_hue_default, hue_order=None,
                              facet_hue_x="gender", facet_hue_x_order=None,
                              facet_hue_y="age_groups", facet_hue_y_order=None,
-                             show_error_bar=False):
+                             show_error_bar=False, flank = 0.05):
         """plot scatter plot by age-gender
 
         Args:
@@ -370,6 +371,8 @@ class Scatter(Figure):
         )
         np_val = df_my_pvt["mean"].values
         np_min, np_max = np.nanmin(np_val), np.nanmax(np_val)
+        delta = np_max - np_min
+        np_min, np_max = np_min-flank*delta, np_max+flank*delta
         fig = plt.figure(figsize=self.figsize)
         for idx_i, gender in enumerate(facet_hue_x_order):
             for idx, age_group in enumerate(facet_hue_y_order):
@@ -753,7 +756,7 @@ class BxxPvalue(Figure):
         p_value_0[p_value_0>max_log10_pvalue] = max_log10_pvalue
         scatter_obj1 = ax1.scatter(np_x1[sub_idx0], df_tmp0["fold_change"],
                     s=df_tmp0["n"]/scale_point_size+minimal_point_size,
-                    cmap="viridis",
+                    cmap=cmap_NEJM_by,
                     c=p_value_0,
                     marker="^",
                     vmin=0, vmax=max_log10_pvalue,
@@ -764,7 +767,7 @@ class BxxPvalue(Figure):
         np_x2 = _generate_x_pos(n_points, 4)
         scatter_obj2 = ax1.scatter(np_x2[sub_idx1], df_tmp1["fold_change"],
                     s=df_tmp1["n"]/scale_point_size+minimal_point_size,
-                    cmap="viridis",
+                    cmap=cmap_NEJM_by,
                     c=p_value_1,
                     marker="o",
                     vmin=0, vmax=max_log10_pvalue,
