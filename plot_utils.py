@@ -49,6 +49,7 @@ dict_month = {
     9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec",
 }
 cmap_NEJM_by = mcolors.LinearSegmentedColormap.from_list("my_cmap", ['#0172B6', '#80b1d3', '#fdb462'])
+scatter_ratio = 200
 
 def func_q5(value):
     """
@@ -240,7 +241,7 @@ class Scatter(Figure):
             )
             scatter_obj = axes.scatter(np.arange(n_points)+pos_move[idx],
                         df_mean_sub.loc[label],
-                        s=df_n_sub.loc[label]/100, color=my_pal[label]
+                        s=df_n_sub.loc[label]/scatter_ratio, color=my_pal[label]
             )
             if show_error_bar:
                 axes.errorbar(np.arange(n_points)+pos_move[idx],
@@ -315,7 +316,7 @@ class Scatter(Figure):
                     axes.legend(loc='center left', bbox_to_anchor=(1, 0.5))
                     continue
 
-                kwargs = dict(prop="sizes", num=5, fmt="{x:.0f}", func=lambda x: x*50)
+                kwargs = dict(prop="sizes", num=5, fmt="{x:.0f}", func=lambda x: x*scatter_ratio)
                 axes.legend(*scatter_obj.legend_elements(**kwargs),
                         loc='center left', bbox_to_anchor=(1, 0.5))
 
@@ -408,7 +409,7 @@ class Scatter(Figure):
                         mon, dict_month) for mon in order], rotation=305)
                     if idx == 3:
                         kwargs = dict(prop="sizes", num=5,
-                                fmt="{x:.0f}", func=lambda x: x*100)
+                                fmt="{x:.0f}", func=lambda x: x*scatter_ratio)
                         axes.legend(*scatter_obj.legend_elements(**kwargs),
                                 loc='center left', bbox_to_anchor=(1, 0.5))
 
@@ -779,10 +780,13 @@ class BxxPvalue(Figure):
         ax1.set_xticklabels(order)
         ax1.set_xticklabels([])
         ax1.set_xlim(0.5, n_points+0.5)
-        y_max = max(df_tmp0["fold_change"].max(), df_tmp1["fold_change"].max()) * 1.05
-        y_min = min(df_tmp0["fold_change"].min(), df_tmp1["fold_change"].min()) * 0.95
-        y_max = max(y_max, 1.1)
-        y_min = min(y_min, 0.9)
+        y_max = max(df_tmp0["fold_change"].max(), df_tmp1["fold_change"].max())
+        y_min = min(df_tmp0["fold_change"].min(), df_tmp1["fold_change"].min())
+        d = y_max - y_min
+        y_max = y_max + d*0.1
+        y_min = y_min - d*0.1
+        y_max = max(y_max, 1.05)
+        y_min = min(y_min, 0.95)
         ax1.set_ylim(y_min, y_max)
 
         # shape -> comparision

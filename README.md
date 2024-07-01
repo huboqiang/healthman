@@ -57,7 +57,7 @@ convert RDS to csv
 ### 1.2. from longer to wider
 
 ```
-0.generate_tableOnePlus.ipynb
+Table1.ipynb
 ```
 
 #### input
@@ -158,3 +158,7 @@ Figure6_T-wave-xgb.ipynb
 ```
 /cluster/home/bqhu_jh/projects/healthman/analysis/liuzhong/human/clinical/Figure
 ```
+
+# Data
+
+Requests for access to internal data may be sent to the  [Bio-Medical Big-Data Center, The First Affiliated Hospital](zybigdata2021@163.com). All requests will be processed following institutional policy governing data sharing and will require a data user agreement.
